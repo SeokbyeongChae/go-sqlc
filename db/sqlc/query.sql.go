@@ -30,6 +30,16 @@ func (q *Queries) CreateAccount(ctx context.Context, arg CreateAccountParams) (s
 	return q.db.ExecContext(ctx, createAccount, arg.Owner, arg.Balance, arg.Currency)
 }
 
+const deleteAccount = `-- name: DeleteAccount :exec
+DELETE FROM accounts 
+WHERE id = ?
+`
+
+func (q *Queries) DeleteAccount(ctx context.Context, id int64) error {
+	_, err := q.db.ExecContext(ctx, deleteAccount, id)
+	return err
+}
+
 const getAccount = `-- name: GetAccount :one
 SELECT id, owner, balance, currency, created_at FROM accounts
 WHERE id = ? LIMIT 1
@@ -91,11 +101,16 @@ func (q *Queries) ListAccounts(ctx context.Context, arg ListAccountsParams) ([]A
 
 const updateAccount = `-- name: UpdateAccount :exec
 UPDATE accounts
-SET balance = $2
-WHERE id = $1
+SET balance = ?
+WHERE id = ?
 `
 
-func (q *Queries) UpdateAccount(ctx context.Context) error {
-	_, err := q.db.ExecContext(ctx, updateAccount)
+type UpdateAccountParams struct {
+	Balance int64 `json:"balance"`
+	ID      int64 `json:"id"`
+}
+
+func (q *Queries) UpdateAccount(ctx context.Context, arg UpdateAccountParams) error {
+	_, err := q.db.ExecContext(ctx, updateAccount, arg.Balance, arg.ID)
 	return err
 }

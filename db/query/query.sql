@@ -17,7 +17,11 @@ INSERT INTO accounts (
   ?, ?, ?
 );
 
-/* name: UpdateAccount :one */
+/* name: UpdateAccount :exec */
 UPDATE accounts
 SET balance = ?
+WHERE id = ?;
+
+/* name: DeleteAccount :exec */
+DELETE FROM accounts 
 WHERE id = ?;
